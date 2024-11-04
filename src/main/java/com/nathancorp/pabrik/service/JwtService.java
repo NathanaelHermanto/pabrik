@@ -20,7 +20,7 @@ public class JwtService {
     private static final long ONE_HOUR = 1000 * 60 * 60;
 
     @Value("${PABRIK_SECRET_KEY}")
-    private String SECRET_KEY;
+    private String secretKey;
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
@@ -70,7 +70,7 @@ public class JwtService {
     }
 
     private SecretKey getSignInKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(SECRET_KEY);
+        byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         return Keys.hmacShaKeyFor(keyBytes);
     }
 }
