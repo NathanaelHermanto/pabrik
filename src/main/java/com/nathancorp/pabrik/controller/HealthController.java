@@ -9,11 +9,16 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/v1/health")
 @RequiredArgsConstructor
-public class DemoController {
+public class HealthController {
 
     @GetMapping
-    public ResponseEntity<String> demo() {
+    public ResponseEntity<String> healthCheck() {
         return ResponseEntity.ok("App is running");
+    }
+
+    @GetMapping("/secured")
+    public ResponseEntity<String> securedHealthCheck() {
+        return ResponseEntity.ok("Secured App is running");
     }
 
 }
