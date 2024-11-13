@@ -43,9 +43,13 @@ class PaddyControllerTest {
         List<Paddy> paddies = List.of(new Paddy(), new Paddy());
         when(paddyService.getAllPaddies()).thenReturn(paddies);
 
-        mockMvc.perform(get("/api/v1/paddy"))
+        mockMvc.perform(get("/api/v1/paddy")
+                        .param("page", "0")
+                        .param("size", "5"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(paddies.size()));
+                .andExpect(jsonPath("$.content.length()").value(paddies.size()))
+                .andExpect(jsonPath("$.totalElements").value(paddies.size()));
+
         verify(paddyService, times(1)).getAllPaddies();
     }
 
@@ -54,9 +58,13 @@ class PaddyControllerTest {
         List<Paddy> availablePaddies = List.of(new Paddy(), new Paddy());
         when(paddyService.getAllAvailablePaddies()).thenReturn(availablePaddies);
 
-        mockMvc.perform(get("/api/v1/paddy/available"))
+        mockMvc.perform(get("/api/v1/paddy/available")
+                        .param("size", "5")
+                        .param("page", "0"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(availablePaddies.size()));
+                .andExpect(jsonPath("$.content.length()").value(availablePaddies.size()))
+                .andExpect(jsonPath("$.totalElements").value(availablePaddies.size()));
+
         verify(paddyService, times(1)).getAllAvailablePaddies();
     }
 
@@ -84,11 +92,11 @@ class PaddyControllerTest {
                 .supplier(request.getSupplier())
                 .storage(Storage.STORAGE_1)
                 .processedQuantity(0.0)
-                .purchaseDate(LocalDateTime.now())
+                .purchaseDate(LocalDateTime.now().truncatedTo(java.time.temporal.ChronoUnit.SECONDS))
                 .supplier(request.getSupplier())
                 .build();
 
-        when(paddyService.createPaddy(request.getPrice(), request.getQuantity(), request.getSupplier())).thenReturn(created);
+        when(paddyService.createPaddy(request.getQuantity(), request.getPrice(), request.getSupplier())).thenReturn(created);
 
         mockMvc.perform(post("/api/v1/paddy")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -103,7 +111,7 @@ class PaddyControllerTest {
                 .andExpect(jsonPath("$.purchaseDate").value(created.getPurchaseDate().toString()))
                 .andExpect(jsonPath("$.supplier").value(request.getSupplier()));
 
-        verify(paddyService, times(1)).createPaddy(request.getPrice(), request.getQuantity(), request.getSupplier());
+        verify(paddyService, times(1)).createPaddy(request.getQuantity(), request.getPrice(), request.getSupplier());
     }
 
     @Test
@@ -114,7 +122,7 @@ class PaddyControllerTest {
 
         mockMvc.perform(delete("/api/v1/paddy/{id}", id.toString()))
                 .andExpect(status().isOk())
-                .andExpect(content().string("Paddy deleted"));
+                .andExpect(content().string("Paddy "+ id + " deleted"));
 
         verify(paddyService, times(1)).deletePaddy(id);
     }
