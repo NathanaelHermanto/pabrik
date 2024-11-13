@@ -4,6 +4,10 @@ import com.nathancorp.pabrik.dto.request.CreatePaddyRequest;
 import com.nathancorp.pabrik.model.Paddy;
 import com.nathancorp.pabrik.service.PaddyService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,13 +22,16 @@ public class PaddyController {
     private final PaddyService paddyService;
 
     @GetMapping
-    public ResponseEntity<List<Paddy>> getPaddies() {
-        return ResponseEntity.ok(paddyService.getAllPaddies());
-    }
+    public Page<Paddy> getPaddies(@RequestParam int page, @RequestParam int size) {
+        List<Paddy> paddies = paddyService.getAllPaddies();
+        Pageable pageable = PageRequest.of(page, size);
+        return new PageImpl<>(paddies, pageable, paddies.size());    }
 
     @GetMapping("/available")
-    public ResponseEntity<List<Paddy>> getAvailablePaddies() {
-        return ResponseEntity.ok(paddyService.getAllAvailablePaddies());
+    public Page<Paddy> getAvailablePaddies(@RequestParam int page, @RequestParam int size) {
+        List<Paddy> paddies = paddyService.getAllAvailablePaddies();
+        Pageable pageable = PageRequest.of(page, size);
+        return new PageImpl<>(paddies, pageable, paddies.size());
     }
 
     @GetMapping("/{id}")

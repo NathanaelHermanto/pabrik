@@ -43,9 +43,12 @@ class PaddyControllerTest {
         List<Paddy> paddies = List.of(new Paddy(), new Paddy());
         when(paddyService.getAllPaddies()).thenReturn(paddies);
 
-        mockMvc.perform(get("/api/v1/paddy"))
+        mockMvc.perform(get("/api/v1/paddy")
+                        .param("page", "0")
+                        .param("size", "5"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(paddies.size()));
+                .andExpect(jsonPath("$.content.length()").value(paddies.size()))
+                .andExpect(jsonPath("$.totalElements").value(paddies.size()));
         verify(paddyService, times(1)).getAllPaddies();
     }
 
@@ -54,9 +57,12 @@ class PaddyControllerTest {
         List<Paddy> availablePaddies = List.of(new Paddy(), new Paddy());
         when(paddyService.getAllAvailablePaddies()).thenReturn(availablePaddies);
 
-        mockMvc.perform(get("/api/v1/paddy/available"))
+        mockMvc.perform(get("/api/v1/paddy/available")
+                        .param("size", "5")
+                        .param("page", "0"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(availablePaddies.size()));
+                .andExpect(jsonPath("$.content.length()").value(availablePaddies.size()))
+                .andExpect(jsonPath("$.totalElements").value(availablePaddies.size()));
         verify(paddyService, times(1)).getAllAvailablePaddies();
     }
 
