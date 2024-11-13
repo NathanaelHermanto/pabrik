@@ -46,7 +46,7 @@ public class PaddyController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deletePaddy(@PathVariable String id) {
-        paddyService.deletePaddy(UUID.fromString(id));d
+        paddyService.deletePaddy(UUID.fromString(id));
         return ResponseEntity.ok("Paddy " + id + " deleted");
     }
 
