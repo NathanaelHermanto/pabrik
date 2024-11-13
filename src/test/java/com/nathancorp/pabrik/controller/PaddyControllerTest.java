@@ -92,11 +92,11 @@ class PaddyControllerTest {
                 .supplier(request.getSupplier())
                 .storage(Storage.STORAGE_1)
                 .processedQuantity(0.0)
-                .purchaseDate(LocalDateTime.now())
+                .purchaseDate(LocalDateTime.now().truncatedTo(java.time.temporal.ChronoUnit.SECONDS))
                 .supplier(request.getSupplier())
                 .build();
 
-        when(paddyService.createPaddy(request.getPrice(), request.getQuantity(), request.getSupplier())).thenReturn(created);
+        when(paddyService.createPaddy(request.getQuantity(), request.getPrice(), request.getSupplier())).thenReturn(created);
 
         mockMvc.perform(post("/api/v1/paddy")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -111,7 +111,7 @@ class PaddyControllerTest {
                 .andExpect(jsonPath("$.purchaseDate").value(created.getPurchaseDate().toString()))
                 .andExpect(jsonPath("$.supplier").value(request.getSupplier()));
 
-        verify(paddyService, times(1)).createPaddy(request.getPrice(), request.getQuantity(), request.getSupplier());
+        verify(paddyService, times(1)).createPaddy(request.getQuantity(), request.getPrice(), request.getSupplier());
     }
 
     @Test
@@ -122,7 +122,7 @@ class PaddyControllerTest {
 
         mockMvc.perform(delete("/api/v1/paddy/{id}", id.toString()))
                 .andExpect(status().isOk())
-                .andExpect(content().string("Paddy deleted"));
+                .andExpect(content().string("Paddy "+ id + " deleted"));
 
         verify(paddyService, times(1)).deletePaddy(id);
     }

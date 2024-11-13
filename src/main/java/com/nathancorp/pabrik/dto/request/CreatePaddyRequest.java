@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CreatePaddyRequest {
-    private Double price;
     private Double quantity;
+    private Double price;
     private String supplier;
 }
