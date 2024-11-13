@@ -41,13 +41,13 @@ public class PaddyController {
 
     @PostMapping
     public ResponseEntity<Paddy> createPaddy(@RequestBody CreatePaddyRequest paddy) {
-        return ResponseEntity.ok(paddyService.createPaddy(paddy.getPrice(), paddy.getQuantity(), paddy.getSupplier()));
+        return ResponseEntity.ok(paddyService.createPaddy(paddy.getQuantity(), paddy.getPrice(), paddy.getSupplier()));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deletePaddy(@PathVariable String id) {
-        paddyService.deletePaddy(UUID.fromString(id));
-        return ResponseEntity.ok("Paddy deleted");
+        paddyService.deletePaddy(UUID.fromString(id));d
+        return ResponseEntity.ok("Paddy " + id + " deleted");
     }
 
 }
