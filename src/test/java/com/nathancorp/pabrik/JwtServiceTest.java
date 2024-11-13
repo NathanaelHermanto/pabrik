@@ -19,11 +19,10 @@ class JwtServiceTest {
 
     private User testUser;
 
-    private final String secretKey = "RWl2V2iChIEyicARsgOAnIJ2R/nYqFTqaZS21BZ3Wns=";
-
     @BeforeEach
     void setUp() {
         jwtService = new JwtService();
+        String secretKey = "RWl2V2iChIEyicARsgOAnIJ2R/nYqFTqaZS21BZ3Wns=";
         ReflectionTestUtils.setField(jwtService, "secretKey", secretKey);
         testUser = new User(new UUID(1, 0), "TestName", "Lastname", "some@email.com", "password", Role.USER);
     }
