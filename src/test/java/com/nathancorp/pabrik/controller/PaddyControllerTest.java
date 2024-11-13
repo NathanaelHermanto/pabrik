@@ -49,6 +49,7 @@ class PaddyControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content.length()").value(paddies.size()))
                 .andExpect(jsonPath("$.totalElements").value(paddies.size()));
+
         verify(paddyService, times(1)).getAllPaddies();
     }
 
@@ -63,6 +64,7 @@ class PaddyControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content.length()").value(availablePaddies.size()))
                 .andExpect(jsonPath("$.totalElements").value(availablePaddies.size()));
+
         verify(paddyService, times(1)).getAllAvailablePaddies();
     }
 
