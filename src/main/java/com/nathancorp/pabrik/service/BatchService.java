@@ -1,5 +1,6 @@
 package com.nathancorp.pabrik.service;
 
+import com.nathancorp.pabrik.exception.NegativeQuantityException;
 import com.nathancorp.pabrik.model.Batch;
 import com.nathancorp.pabrik.model.Paddy;
 import com.nathancorp.pabrik.model.Rice;
@@ -29,8 +30,26 @@ public class BatchService {
 
     private final RiceService riceService;
 
-
+    /**
+     * Takes a map of paddyId and quantity and produced quantity to create a batch
+     * Batch can be processed or unprocessed based on the produced quantity
+     * if produced quantity is 0, then the Batch.isProcessed is false
+     *
+     * @param paddyAndQuantity Map<String, Double> paddyId and quantity
+     * @param producedQuantity Double produced quantity
+     * @return Batch entity
+     */
     public Batch createBatch(Map<String, Double> paddyAndQuantity, Double producedQuantity) {
+        if (producedQuantity <= 0) {
+            logger.error("Failed to create Batch, invalid produced quantity, should be greater than 0");
+            throw new NegativeQuantityException("Invalid produced quantity");
+        }
+
+        if (paddyAndQuantity.isEmpty()) {
+            logger.error("Failed to create Batch, paddy and quantity is empty");
+            throw new IllegalArgumentException("Paddy and quantity is empty");
+        }
+
         List<Paddy> paddies = new ArrayList<>();
 
         // Check if each paddy has enough quantity
@@ -40,7 +59,7 @@ public class BatchService {
 
             if (quantity <= 0) {
                 logger.error("Failed to create Batch, invalid quantity, should be greater than 0");
-                throw new IllegalArgumentException("Invalid quantity");
+                throw new NegativeQuantityException("Invalid quantity");
             }
 
             // Retrieve paddy from database and check quantity
@@ -56,6 +75,7 @@ public class BatchService {
                 .storage(Storage.STORAGE_2)
                 .paddies(paddies)
                 .paddiesAndQuantity(paddyAndQuantity)
+                .quantity(paddyAndQuantity.values().stream().mapToDouble(Double::doubleValue).sum())
                 .build();
 
         batch = batchRepository.save(batch);
@@ -76,5 +96,31 @@ public class BatchService {
     public Batch getBatchById(String id) {
         return batchRepository.findById(UUID.fromString(id)).orElseThrow(()
                 -> new EntityNotFoundException("Batch with ID " + id + " not found"));
+    }
+
+    /**
+     * Update batch produced quantity/isProcessed field
+     * @param batchId
+     * @param isProcessed
+     * @param producedQuantity
+     * @return updated Batch entity
+     */
+    public Batch updateBatchStatus(String batchId, boolean isProcessed, Double producedQuantity) {
+        if (producedQuantity <= 0) {
+            logger.error("Failed to update Batch, invalid produced quantity, should be greater than 0");
+            throw new NegativeQuantityException("Invalid produced quantity, should be greater than 0");
+        }
+        Batch batch = batchRepository.findById(UUID.fromString(batchId)).orElseThrow(
+                () -> new EntityNotFoundException("Batch not found"));
+
+        batch.setProcessed(isProcessed);
+        batch.setProducedQuantity(producedQuantity);
+
+        batch = batchRepository.save(batch);
+
+        logger.info(String.format("Batch %s updated with processed status: %s and produced quantity: %f",
+                batch.getId(), isProcessed, batch.getProducedQuantity()));
+
+        return batch;
     }
 }
