@@ -1,6 +1,6 @@
 package com.nathancorp.pabrik.service;
 
-import com.nathancorp.pabrik.exception.NegativeQuantityException;
+import com.nathancorp.pabrik.exception.InvalidQuantityException;
 import com.nathancorp.pabrik.exception.PaddyNotAvailableForProcessingException;
 import com.nathancorp.pabrik.model.Batch;
 import com.nathancorp.pabrik.model.Paddy;
@@ -126,7 +126,7 @@ class BatchServiceTest {
     void testCreateBatch_InvalidQuantity_ThrowsException() {
         Map<String, Double> paddyAndQuantity = Map.of("paddy1", -100.0);
 
-        NegativeQuantityException exception = assertThrows(NegativeQuantityException.class,
+        InvalidQuantityException exception = assertThrows(InvalidQuantityException.class,
                 () -> batchService.createBatch(paddyAndQuantity, 250.0));
 
         assertEquals("Invalid quantity", exception.getMessage());
@@ -151,7 +151,7 @@ class BatchServiceTest {
     void testCreateBatch_ZeroProducedQuantity_ThrowsException() {
         Map<String, Double> paddyAndQuantity = Map.of("paddy1", 100.0);
 
-        assertThrows(NegativeQuantityException.class, () -> batchService.createBatch(paddyAndQuantity, 0.0));
+        assertThrows(InvalidQuantityException.class, () -> batchService.createBatch(paddyAndQuantity, 0.0));
         verifyNoInteractions(batchRepository, riceService, paddyService);
     }
 
@@ -189,7 +189,7 @@ class BatchServiceTest {
     void testUpdateBatchStatus_InvalidProducedQuantity_ThrowsException() {
         UUID batchId = UUID.randomUUID();
 
-        NegativeQuantityException exception = assertThrows(NegativeQuantityException.class,
+        InvalidQuantityException exception = assertThrows(InvalidQuantityException.class,
                 () -> batchService.updateBatchStatus(batchId.toString(), true, -500.0));
 
         assertEquals("Invalid produced quantity, should be greater than 0", exception.getMessage());
@@ -236,7 +236,7 @@ class BatchServiceTest {
 
         when(batchRepository.findById(batchId)).thenReturn(Optional.of(mockBatch));
 
-        NegativeQuantityException exception = assertThrows(NegativeQuantityException.class,
+        InvalidQuantityException exception = assertThrows(InvalidQuantityException.class,
                 () -> batchService.updateBatchStatus(batchId.toString(), true, 0.0));
 
         assertEquals("Invalid produced quantity, should be greater than 0", exception.getMessage());
