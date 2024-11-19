@@ -1,7 +1,7 @@
 package com.nathancorp.pabrik.service;
 
-import com.nathancorp.pabrik.exception.NegativePriceException;
-import com.nathancorp.pabrik.exception.NegativeQuantityException;
+import com.nathancorp.pabrik.exception.InvalidPriceException;
+import com.nathancorp.pabrik.exception.InvalidQuantityException;
 import com.nathancorp.pabrik.exception.PaddyNotAvailableForProcessingException;
 import com.nathancorp.pabrik.model.Batch;
 import com.nathancorp.pabrik.model.Paddy;
@@ -29,12 +29,12 @@ public class PaddyService {
     public Paddy createPaddy(Double quantity, Double price, String supplier) {
         if (quantity <= 0) {
             logger.error("Failed to create Paddy, invalid quantity, should be greater than 0");
-            throw new NegativeQuantityException("Invalid quantity, should be greater than 0");
+            throw new InvalidQuantityException("Invalid quantity, should be greater than 0");
         }
 
         if (price <= 0) {
             logger.error("Failed to create Paddy, invalid price, should be greater than 0");
-            throw new NegativePriceException("Invalid price, should be greater than 0");
+            throw new InvalidPriceException("Invalid price, should be greater than 0");
         }
 
         Paddy rp = Paddy.builder()

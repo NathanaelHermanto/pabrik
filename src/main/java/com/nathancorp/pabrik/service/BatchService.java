@@ -1,6 +1,6 @@
 package com.nathancorp.pabrik.service;
 
-import com.nathancorp.pabrik.exception.NegativeQuantityException;
+import com.nathancorp.pabrik.exception.InvalidQuantityException;
 import com.nathancorp.pabrik.model.Batch;
 import com.nathancorp.pabrik.model.Paddy;
 import com.nathancorp.pabrik.model.Rice;
@@ -42,7 +42,7 @@ public class BatchService {
     public Batch createBatch(Map<String, Double> paddyAndQuantity, Double producedQuantity) {
         if (producedQuantity <= 0) {
             logger.error("Failed to create Batch, invalid produced quantity, should be greater than 0");
-            throw new NegativeQuantityException("Invalid produced quantity");
+            throw new InvalidQuantityException("Invalid produced quantity");
         }
 
         if (paddyAndQuantity.isEmpty()) {
@@ -59,7 +59,7 @@ public class BatchService {
 
             if (quantity <= 0) {
                 logger.error("Failed to create Batch, invalid quantity, should be greater than 0");
-                throw new NegativeQuantityException("Invalid quantity");
+                throw new InvalidQuantityException("Invalid quantity");
             }
 
             // Retrieve paddy from database and check quantity
@@ -108,7 +108,7 @@ public class BatchService {
     public Batch updateBatchStatus(String batchId, boolean isProcessed, Double producedQuantity) {
         if (producedQuantity <= 0) {
             logger.error("Failed to update Batch, invalid produced quantity, should be greater than 0");
-            throw new NegativeQuantityException("Invalid produced quantity, should be greater than 0");
+            throw new InvalidQuantityException("Invalid produced quantity, should be greater than 0");
         }
         Batch batch = batchRepository.findById(UUID.fromString(batchId)).orElseThrow(
                 () -> new EntityNotFoundException("Batch not found"));

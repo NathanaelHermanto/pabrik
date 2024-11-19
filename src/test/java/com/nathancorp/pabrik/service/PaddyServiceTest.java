@@ -3,8 +3,8 @@ package com.nathancorp.pabrik.service;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-import com.nathancorp.pabrik.exception.NegativePriceException;
-import com.nathancorp.pabrik.exception.NegativeQuantityException;
+import com.nathancorp.pabrik.exception.InvalidPriceException;
+import com.nathancorp.pabrik.exception.InvalidQuantityException;
 import com.nathancorp.pabrik.exception.PaddyNotAvailableForProcessingException;
 import com.nathancorp.pabrik.model.Batch;
 import com.nathancorp.pabrik.model.Paddy;
@@ -133,13 +133,13 @@ class PaddyServiceTest {
 
     @Test
     void testCreatePaddy_NegativePrice() {
-        assertThrows(NegativePriceException.class, () ->
+        assertThrows(InvalidPriceException.class, () ->
                 paddyService.createPaddy(500.0, -20.0, "Supplier A"));
     }
 
     @Test
     void testCreatePaddy_NegativeQuantity() {
-        assertThrows(NegativeQuantityException.class, () ->
+        assertThrows(InvalidQuantityException.class, () ->
                 paddyService.createPaddy(-500.0, 20.0, "Supplier A"));
     }
 

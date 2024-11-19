@@ -2,8 +2,8 @@ package com.nathancorp.pabrik.exception;
 
 import org.springframework.dao.DataIntegrityViolationException;
 
-public class NegativePriceException extends DataIntegrityViolationException {
-    public NegativePriceException(String message) {
+public class InvalidPriceException extends DataIntegrityViolationException {
+    public InvalidPriceException(String message) {
         super(message);
     }
 }
