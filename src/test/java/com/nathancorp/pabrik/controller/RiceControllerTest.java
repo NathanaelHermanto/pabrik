@@ -13,6 +13,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -66,7 +69,9 @@ class RiceControllerTest {
     @Test
     void testGetRice() throws Exception {
         List<Rice> riceList = List.of(new Rice(), new Rice());
-        when(riceService.getAllRice()).thenReturn(riceList);
+        Pageable pageable = PageRequest.of(0, 5);
+
+        when(riceService.getAllRice(any())).thenReturn(new PageImpl<>(riceList, pageable, riceList.size()));
 
         mockMvc.perform(get("/api/v1/rice")
                         .param("page", "0")
@@ -75,7 +80,7 @@ class RiceControllerTest {
                 .andExpect(jsonPath("$.content.length()").value(riceList.size()))
                 .andExpect(jsonPath("$.totalElements").value(riceList.size()));
 
-        verify(riceService, times(1)).getAllRice();
+        verify(riceService, times(1)).getAllRice(any());
     }
 
     @Test

@@ -23,9 +23,8 @@ public class BatchController {
 
     @GetMapping
     public Page<Batch> getBatches(@RequestParam int page, @RequestParam int size) {
-        List<Batch> batches = batchService.getAllBatch();
         Pageable pageable = PageRequest.of(page, size);
-        return new PageImpl<>(batches, pageable, batches.size());
+        return batchService.getAllBatch(pageable);
     }
 
     @GetMapping("/{id}")

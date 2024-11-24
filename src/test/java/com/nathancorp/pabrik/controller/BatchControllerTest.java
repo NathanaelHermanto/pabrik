@@ -16,6 +16,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -63,7 +66,9 @@ class BatchControllerTest {
     @Test
     void testGetBatch() throws Exception {
         List<Batch> batches = List.of(new Batch(), new Batch());
-        when(batchService.getAllBatch()).thenReturn(batches);
+        Pageable pageable = PageRequest.of(0, 5);
+
+        when(batchService.getAllBatch(any())).thenReturn(new PageImpl<>(batches, pageable, batches.size()));
 
         mockMvc.perform(get("/api/v1/batch")
                         .param("page", "0")
@@ -72,7 +77,7 @@ class BatchControllerTest {
                 .andExpect(jsonPath("$.content.length()").value(batches.size()))
                 .andExpect(jsonPath("$.totalElements").value(batches.size()));
 
-        verify(batchService, times(1)).getAllBatch();
+        verify(batchService, times(1)).getAllBatch(any());
     }
 
     @Test

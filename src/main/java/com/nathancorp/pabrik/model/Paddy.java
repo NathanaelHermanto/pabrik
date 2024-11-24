@@ -34,13 +34,13 @@ public class Paddy {
     @NonNull
     private LocalDateTime purchaseDate;
 
-    @ManyToMany(mappedBy = "paddies")
-    private List<Batch> batches;
+//    @ManyToMany(mappedBy = "paddies")
+//    private List<Batch> batches;
 
     private double processedQuantity;
 
-    public void setBatches(Batch batch) {
-        this.batches.add(batch);
-    }
+//    public void setBatches(Batch batch) {
+//        this.batches.add(batch);
+//    }
 
 }

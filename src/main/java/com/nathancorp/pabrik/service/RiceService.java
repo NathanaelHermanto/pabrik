@@ -10,6 +10,8 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -71,8 +73,8 @@ public class RiceService {
         }
     }
 
-    public List<Rice> getAllRice() {
-        return repository.findAll();
+    public Page<Rice> getAllRice(Pageable pageable) {
+        return repository.findAll(pageable);
     }
 
     public Rice getRiceById(String id) {

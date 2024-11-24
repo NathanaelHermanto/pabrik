@@ -17,6 +17,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -37,7 +41,7 @@ class PaddyServiceTest {
     @Test
     void testCreatePaddy() {
         Paddy mockPaddy = new Paddy(UUID.randomUUID(), 500.0, 20.0,
-                "Supplier A", Storage.STORAGE_1, LocalDateTime.now(), new ArrayList<>(), 0.0);
+                "Supplier A", Storage.STORAGE_1, LocalDateTime.now(), 0.0);
         when(paddyRepository.save(any(Paddy.class))).thenReturn(mockPaddy);
 
         Paddy createdPaddy = paddyService.createPaddy(500.0, 20.0, "Supplier A");
@@ -66,7 +70,7 @@ class PaddyServiceTest {
     void testGetPaddyById() {
         UUID paddyId = UUID.randomUUID();
         Paddy mockPaddy = new Paddy(paddyId, 500.0, 20.0,
-                "Supplier A", Storage.STORAGE_1, LocalDateTime.now(), new ArrayList<>(), 0.0);
+                "Supplier A", Storage.STORAGE_1, LocalDateTime.now(), 0.0);
         when(paddyRepository.findById(paddyId)).thenReturn(Optional.of(mockPaddy));
 
         Paddy fetchedPaddy = paddyService.getPaddyById(paddyId.toString());
@@ -84,20 +88,21 @@ class PaddyServiceTest {
     @Test
     void testGetAllAvailablePaddies() {
         Paddy paddy1 = new Paddy(UUID.randomUUID(), 500.0, 20.0,
-                "Supplier A", Storage.STORAGE_1, LocalDateTime.now(), new ArrayList<>(), 0.0);
+                "Supplier A", Storage.STORAGE_1, LocalDateTime.now(), 0.0);
         Paddy paddy2 = new Paddy(UUID.randomUUID(), 1000.0, 25.0,
-                "Supplier B", Storage.STORAGE_1, LocalDateTime.now(), new ArrayList<>(), 100);
-        when(paddyRepository.findAll()).thenReturn(List.of(paddy1, paddy2));
+                "Supplier B", Storage.STORAGE_1, LocalDateTime.now(), 100);
+        Pageable pageable = PageRequest.of(0, 10);
+        when(paddyRepository.findAvailablePaddies(pageable)).thenReturn(new PageImpl<>(List.of(paddy1, paddy2)));
 
-        List<Paddy> availablePaddies = paddyService.getAllAvailablePaddies();
-        assertEquals(2, availablePaddies.size());
+        Page<Paddy> availablePaddies = paddyService.getAllAvailablePaddies(pageable);
+        assertEquals(2, availablePaddies.getTotalElements());
     }
 
     @Test
     void testGetAvailablePaddyByIdForBatch() {
         UUID paddyId = UUID.randomUUID();
         Paddy mockPaddy = new Paddy(paddyId, 500.0, 20.0,
-                "Supplier A", Storage.STORAGE_1, LocalDateTime.now(), new ArrayList<>(), 100);
+                "Supplier A", Storage.STORAGE_1, LocalDateTime.now(), 100);
         when(paddyRepository.findById(paddyId)).thenReturn(Optional.of(mockPaddy));
 
         Paddy availablePaddy = paddyService.getAvailablePaddyByIdForBatch(paddyId.toString(), 300.0);
@@ -108,7 +113,7 @@ class PaddyServiceTest {
     void testGetAvailablePaddyByIdForBatch_NotAvailable() {
         UUID paddyId = UUID.randomUUID();
         Paddy mockPaddy = new Paddy(paddyId, 500.0, 20.0,
-                "Supplier A", Storage.STORAGE_1, LocalDateTime.now(), new ArrayList<>(), 500.0);
+                "Supplier A", Storage.STORAGE_1, LocalDateTime.now(), 500.0);
         when(paddyRepository.findById(paddyId)).thenReturn(Optional.of(mockPaddy));
 
         assertThrows(PaddyNotAvailableForProcessingException.class,
@@ -118,7 +123,7 @@ class PaddyServiceTest {
     @Test
     void testUpdatePaddiesProcessedQuantity() {
         UUID paddyId = UUID.randomUUID();
-        Paddy mockPaddy = new Paddy(paddyId, 500.0, 20.0, "Supplier A", Storage.STORAGE_1, LocalDateTime.now(), new ArrayList<>(), 100);
+        Paddy mockPaddy = new Paddy(paddyId, 500.0, 20.0, "Supplier A", Storage.STORAGE_1, LocalDateTime.now(), 100);
         Batch mockBatch = new Batch(UUID.randomUUID(), 250.0, Storage.STORAGE_2, LocalDateTime.now(),
                 true, new ArrayList<>(), new ArrayList<>(), 200.0, null);
 
@@ -157,7 +162,7 @@ class PaddyServiceTest {
     @Test
     void testGetAvailablePaddyByIdForBatch_InvalidQuantity() {
         UUID paddyId = UUID.randomUUID();
-        Paddy mockPaddy = new Paddy(paddyId, 500.0, 20.0, "Supplier A", Storage.STORAGE_1, LocalDateTime.now(), new ArrayList<>(), 460);
+        Paddy mockPaddy = new Paddy(paddyId, 500.0, 20.0, "Supplier A", Storage.STORAGE_1, LocalDateTime.now(),  460);
         when(paddyRepository.findById(paddyId)).thenReturn(Optional.of(mockPaddy));
 
         assertThrows(PaddyNotAvailableForProcessingException.class, () -> paddyService.getAvailablePaddyByIdForBatch(paddyId.toString(), 50.0));

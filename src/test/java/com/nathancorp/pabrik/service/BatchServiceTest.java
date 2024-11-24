@@ -13,6 +13,10 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -53,12 +57,14 @@ class BatchServiceTest {
                         .processingDate(LocalDateTime.now())
                         .build()
         );
+        Pageable pageable = PageRequest.of(0, 5);
 
-        when(batchRepository.findAll()).thenReturn(mockBatchList);
+        when(batchRepository.findAll(pageable))
+                .thenReturn(new PageImpl<>(mockBatchList, pageable, mockBatchList.size()));
 
-        List<Batch> batchList = batchService.getAllBatch();
+        Page<Batch> batchList = batchService.getAllBatch(pageable);
 
-        assertEquals(2, batchList.size());
+        assertEquals(2, batchList.getTotalElements());
     }
 
     @Test
@@ -83,9 +89,9 @@ class BatchServiceTest {
         Map<String, Double> paddyAndQuantity = Map.of("paddy1", 100.0, "paddy2", 200.0);
 
         Paddy mockPaddy1 = new Paddy(UUID.randomUUID(), 500.0, 200.0, "Supplier A",
-                Storage.STORAGE_1, LocalDateTime.now(), new ArrayList<>(), 50.0);
+                Storage.STORAGE_1, LocalDateTime.now(),  50.0);
         Paddy mockPaddy2 = new Paddy(UUID.randomUUID(), 1000.0, 300.0, "Supplier B",
-                Storage.STORAGE_1, LocalDateTime.now(), new ArrayList<>(), 100.0);
+                Storage.STORAGE_1, LocalDateTime.now(),  100.0);
 
         when(paddyService.getAvailablePaddyByIdForBatch("paddy1", 100.0)).thenReturn(mockPaddy1);
         when(paddyService.getAvailablePaddyByIdForBatch("paddy2", 200.0)).thenReturn(mockPaddy2);

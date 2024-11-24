@@ -12,6 +12,10 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -79,11 +83,13 @@ public class RiceServiceTest {
 
     @Test
     void testGetAllRice() {
-        when(riceRepository.findAll()).thenReturn(List.of(mockRice1, mockRice2));
+        Pageable pageable= PageRequest.of(0, 5);
+        when(riceRepository.findAll(pageable))
+                .thenReturn(new PageImpl<>(List.of(mockRice1, mockRice2), pageable, 2));
 
-        List<Rice> riceList = riceService.getAllRice();
+        Page<Rice> riceList = riceService.getAllRice(pageable);
 
-        assertEquals(2, riceList.size());
+        assertEquals(2, riceList.getTotalElements());
     }
 
     @Test
