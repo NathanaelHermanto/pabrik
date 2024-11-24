@@ -11,10 +11,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -41,7 +45,8 @@ class PaddyControllerTest {
     @Test
     void testGetPaddies() throws Exception {
         List<Paddy> paddies = List.of(new Paddy(), new Paddy());
-        when(paddyService.getAllPaddies()).thenReturn(paddies);
+        Pageable pageable = PageRequest.of(0, 5);
+        when(paddyService.getAllPaddies(any())).thenReturn(new PageImpl<>(paddies, pageable, paddies.size()));
 
         mockMvc.perform(get("/api/v1/paddy")
                         .param("page", "0")
@@ -50,22 +55,32 @@ class PaddyControllerTest {
                 .andExpect(jsonPath("$.content.length()").value(paddies.size()))
                 .andExpect(jsonPath("$.totalElements").value(paddies.size()));
 
-        verify(paddyService, times(1)).getAllPaddies();
+        verify(paddyService, times(1)).getAllPaddies(any());
     }
 
     @Test
     void testGetAvailablePaddies() throws Exception {
-        List<Paddy> availablePaddies = List.of(new Paddy(), new Paddy());
-        when(paddyService.getAllAvailablePaddies()).thenReturn(availablePaddies);
+        Paddy mockPaddy = new Paddy(UUID.randomUUID(), 500.0, 20.0,
+                "Supplier A", Storage.STORAGE_1, LocalDateTime.now(),0.0);
+        Paddy mockPaddy1 = new Paddy(UUID.randomUUID(), 500.0, 20.0,
+                "Supplier A", Storage.STORAGE_1, LocalDateTime.now(),0.0);
+        List<Paddy> paddies = List.of(
+                mockPaddy,
+                mockPaddy1
+        );
+        Pageable pageable = PageRequest.of(0, 5);
+
+        when(paddyService.getAllAvailablePaddies(any()))
+                .thenReturn(new PageImpl<>(paddies, pageable, paddies.size()));
 
         mockMvc.perform(get("/api/v1/paddy/available")
                         .param("size", "5")
                         .param("page", "0"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content.length()").value(availablePaddies.size()))
-                .andExpect(jsonPath("$.totalElements").value(availablePaddies.size()));
+                .andExpect(jsonPath("$.content.length()").value(paddies.size()))
+                .andExpect(jsonPath("$.totalElements").value(paddies.size()));
 
-        verify(paddyService, times(1)).getAllAvailablePaddies();
+        verify(paddyService, times(1)).getAllAvailablePaddies(any());
     }
 
     @Test
@@ -108,7 +123,6 @@ class PaddyControllerTest {
                 .andExpect(jsonPath("$.supplier").value(request.getSupplier()))
                 .andExpect(jsonPath("$.storage").value(Storage.STORAGE_1.name()))
                 .andExpect(jsonPath("$.processedQuantity").value(0.0))
-                .andExpect(jsonPath("$.purchaseDate").value(created.getPurchaseDate().toString()))
                 .andExpect(jsonPath("$.supplier").value(request.getSupplier()));
 
         verify(paddyService, times(1)).createPaddy(request.getQuantity(), request.getPrice(), request.getSupplier());

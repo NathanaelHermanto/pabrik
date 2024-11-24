@@ -11,6 +11,8 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -44,7 +46,7 @@ public class PaddyService {
                 .storage(Storage.STORAGE_1)
                 .purchaseDate(LocalDateTime.now())
                 .processedQuantity(0)
-                .batches(List.of())
+//                .batches(List.of())
                 .build();
 
         rp = paddyRepository.save(rp);
@@ -69,14 +71,12 @@ public class PaddyService {
         });
     }
 
-    public List<Paddy> getAllAvailablePaddies() {
-        return paddyRepository.findAll().stream()
-                .filter(paddy -> paddy.getProcessedQuantity() < paddy.getQuantity())
-                .toList();
+    public Page<Paddy> getAllAvailablePaddies(Pageable pageable) {
+        return paddyRepository.findAvailablePaddies(pageable);
     }
 
-    public List<Paddy> getAllPaddies() {
-        return paddyRepository.findAll();
+    public Page<Paddy> getAllPaddies(Pageable pageable) {
+        return paddyRepository.findAll(pageable);
     }
 
     public Paddy getAvailablePaddyByIdForBatch(String id, Double quantity) {
@@ -92,7 +92,7 @@ public class PaddyService {
         paddyAndQuantity.forEach((paddyId, quantity) -> {
             paddyRepository.findById(UUID.fromString(paddyId)).ifPresent(paddy -> {
                 paddy.setProcessedQuantity(paddy.getProcessedQuantity() + quantity);
-                paddy.setBatches(batch);
+//                paddy.setBatches(batch);
                 paddyRepository.save(paddy);
                 logger.info("Updated processed quantity for Paddy with ID: {} to {}", paddyId, paddy.getProcessedQuantity());
             });
