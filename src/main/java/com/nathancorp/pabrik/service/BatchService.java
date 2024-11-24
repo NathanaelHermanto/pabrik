@@ -10,6 +10,8 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -89,8 +91,8 @@ public class BatchService {
         return batch;
     }
 
-    public List<Batch> getAllBatch() {
-        return batchRepository.findAll();
+    public Page<Batch> getAllBatch(Pageable pageable) {
+        return batchRepository.findAll(pageable);
     }
 
     public Batch getBatchById(String id) {

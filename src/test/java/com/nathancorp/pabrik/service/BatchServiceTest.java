@@ -13,6 +13,10 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -53,12 +57,14 @@ class BatchServiceTest {
                         .processingDate(LocalDateTime.now())
                         .build()
         );
+        Pageable pageable = PageRequest.of(0, 5);
 
-        when(batchRepository.findAll()).thenReturn(mockBatchList);
+        when(batchRepository.findAll(pageable))
+                .thenReturn(new PageImpl<>(mockBatchList, pageable, mockBatchList.size()));
 
-        List<Batch> batchList = batchService.getAllBatch();
+        Page<Batch> batchList = batchService.getAllBatch(pageable);
 
-        assertEquals(2, batchList.size());
+        assertEquals(2, batchList.getTotalElements());
     }
 
     @Test

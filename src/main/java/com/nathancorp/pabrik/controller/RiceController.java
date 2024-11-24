@@ -26,9 +26,8 @@ public class RiceController {
 
     @GetMapping
     public Page<Rice> getRice(@RequestParam int page, @RequestParam int size) {
-        List<Rice> riceList = riceService.getAllRice();
         Pageable pageable = PageRequest.of(page, size);
-        return new PageImpl<>(riceList, pageable, riceList.size());
+        return riceService.getAllRice(pageable);
     }
 
     @GetMapping("/{id}")
